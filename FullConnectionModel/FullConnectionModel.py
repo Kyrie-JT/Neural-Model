@@ -7,36 +7,6 @@ from tqdm import trange
 # 载入 MNIST 数据集，如果指定路径 dataset/ 下没有已经下载好的数据，那么 TensorFlow 会自动从数据集所在网址下载数据
 mnist = input_data.read_data_sets("dataset/", one_hot=True)
 
-print("Shape of train data:", mnist.train.images.shape)
-print("Type of train data:", type(mnist.train.images))
-print("Shape of train labels: ", mnist.train.labels.shape)
-print("Type of train labels:", type(mnist.train.labels))
-'''输出结果为：
-Shape of train data: (55000, 784)
-Type of train data: <class 'numpy.ndarray'>
-Shape of train labels:  (55000, 10)
-Type of train labels: <class 'numpy.ndarray'>'''
-
-print("Shape of validation data:", mnist.validation.images.shape)
-print("Type of validation data:", type(mnist.validation.images))
-print("Shape of validation labels: ", mnist.validation.labels.shape)
-print("Type of validation labels:", type(mnist.validation.labels))
-'''输出结果为：
-Shape of validation data: (5000, 784)
-Type of validation data: <class 'numpy.ndarray'>
-Shape of validation labels:  (5000, 10)
-Type of validation labels: <class 'numpy.ndarray'>'''
-
-print("Shape of test data:", mnist.test.images.shape)
-print("Type of test data:", type(mnist.test.images))
-print("Shape of test labels: ", mnist.test.labels.shape)
-print("Type of test labels:", type(mnist.test.labels))
-'''输出结果为：
-Shape of test data: (10000, 784)
-Type of test data: <class 'numpy.ndarray'>
-Shape of test labels:  (10000, 10)
-Type of test labels: <class 'numpy.ndarray'>'''
-
 #sigmoid 激活函数
 def sigmoid_function(X):
     fx = 1/(1 + np.exp(-X))
@@ -87,7 +57,7 @@ class FullConnectionLayer():
         return X_grad,W_grad
 
 class FullConnectionModel():
-    def __init__(self, dims):            #dims 表示创建的隐藏层有几个节点
+    def __init__(self, dims):            #dims 表示创建的隐藏层有几个神经元
         self.dims = dims
         self.W1 = np.random.normal(loc=0,scale=1,size=[28 * 28 + 1,dims]) /np.sqrt((28 * 28 + 1)/2)    #加一层偏置
         self.W2 = np.random.normal(loc=0,scale=1,size=[dims + 1,10]) /np.sqrt((dims + 1) / 2)
@@ -148,7 +118,7 @@ def train(x_train, y_train, x_validation, y_validation):
         model = FullConnectionModel(latent_dims)
 
         bar = trange(20)  # 使用 tqdm 第三方库，调用 tqdm.std.trange 方法给循环加个进度条
-        for epoch in bar:
+        for epoch in bar:       #训练二十次，找到最佳隐藏层层数
             loss, accuracy = trainOneStep(model, x_train, y_train, learning_rate) 
             bar.set_description(f'Parameter latent_dims={latent_dims: <3}, epoch={epoch + 1: <3}, loss={loss: <10.8}, accuracy={accuracy: <8.6}')  # 给进度条加个描述
         bar.close()
@@ -166,7 +136,7 @@ def train(x_train, y_train, x_validation, y_validation):
     best_model = FullConnectionModel(best_latent_dims)
     x = np.concatenate([x_train, x_validation], axis=0)
     y = np.concatenate([y_train, y_validation], axis=0)
-    bar = trange(epochs)
+    bar = trange(epochs)        #训练1000次
     for epoch in bar:
         loss, accuracy = trainOneStep(best_model, x, y, learning_rate)
         bar.set_description(f'Training the best model, epoch={epoch + 1: <3}, loss={loss: <10.8}, accuracy={accuracy: <8.6}')  # 给进度条加个描述
@@ -183,7 +153,6 @@ def evaluate(model, x, y):
     return loss, accuracy
 
 
-mnist = input_data.read_data_sets("dataset/", one_hot=True)
 model = train(mnist.train.images, mnist.train.labels, mnist.validation.images, mnist.validation.labels)
 loss, accuracy = evaluate(model, mnist.test.images, mnist.test.labels)
 print(f'Evaluate the best model, test loss={loss:0<10.8}, accuracy={accuracy:0<8.6}.')
